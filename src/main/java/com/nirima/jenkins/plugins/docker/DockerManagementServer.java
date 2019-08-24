@@ -8,6 +8,7 @@ import hudson.model.Describable;
 import hudson.model.Descriptor;
 import io.jenkins.docker.client.DockerAPI;
 import jenkins.model.Jenkins;
+import org.apache.commons.lang.StringUtils;
 import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
@@ -22,6 +23,9 @@ import java.util.Date;
  * Created by magnayn on 22/02/2014.
  */
 public class DockerManagementServer implements Describable<DockerManagementServer> {
+    private static final String DOCKER_CONTAINER_NAME_PREFIX_TOKEN = "/";
+    private static final char CONTAINER_NAMES_SEPARATOR_TOKEN = ',';
+
     final String name;
     final DockerCloud theCloud;
 
@@ -61,6 +65,29 @@ public class DockerManagementServer implements Describable<DockerManagementServe
         } catch (IOException ex) {
             throw new RuntimeException(ex);
         }
+    }
+
+    /**
+     * Format container name accordinly to the Docker REST API:
+     * https://docs.docker.com/engine/api/v1.40/#operation/ContainerList
+     *
+     * @param containerNames The names that this container has been given
+     *
+     * @return the main container name
+     */
+    public String formatContainerName(String[] containerNames) {
+        int numberOfNames = containerNames.length;
+        if (numberOfNames > 0) {
+            // Should be never more than one but just in case, take the first one.
+            final StringBuilder namesBuilder = new StringBuilder();
+            for (int i=0; i<numberOfNames; i++) {
+                String containerName = StringUtils.removeStart(containerNames[i], DOCKER_CONTAINER_NAME_PREFIX_TOKEN);
+                namesBuilder.append(containerName).append(CONTAINER_NAMES_SEPARATOR_TOKEN);
+            }
+            namesBuilder.deleteCharAt(namesBuilder.length() - 1); // Remove last token
+            return namesBuilder.toString();
+        }
+        return "";
     }
 
     public String asTime(Long time) {

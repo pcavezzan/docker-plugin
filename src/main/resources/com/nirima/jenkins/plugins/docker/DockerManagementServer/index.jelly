@@ -31,7 +31,7 @@
                        style="margin-top: 0">
                     <tr>
                         <td class="pane-header">${%Container Id}</td>
-                        <td class="pane-header">${%Container Name}</td>
+                        <td class="pane-header">${%Container Names}</td>
                         <td class="pane-header">${%Image}</td>
                         <td class="pane-header">${%Command}</td>
                         <td class="pane-header">${%Created}</td>
@@ -42,7 +42,7 @@
                     <j:forEach var="res" items="${it.processes}">
                         <tr>
                             <td>${res.id}</td>
-                            <td>${res.names[0]}</td>
+                            <td>${it.formatContainerName(res.names)}</td>
                             <td>${res.image}</td>
                             <td>${res.command}</td>
                             <td>${it.asTime(res.created)}</td>
